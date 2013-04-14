@@ -1,0 +1,9 @@
+include_rules
+
+LIBS+= -pthread
+EXTRADEP+=
+
+: foreach *.cpp |> !cpp |>
+: *.o |> !link_test |>
+: |> !run_test |>
+
