@@ -1,0 +1,12 @@
+PHOME=$(TUP_CWD)
+CFLAGS+=-Wall -Wextra -pedantic -Werror -fPIC -std=c++11 -O2
+INCLUDE_PATH+=-I$(PHOME)/include
+LIBS=
+EXTRADEP=
+
+CXX=g++
+
+!cpp = |> $(CXX) $(CFLAGS) $(INCLUDE_PATH) %f -c |> %B.o
+!link_test = |> $(CXX) $(CFLAGS) $(LIBPATH) $(LIBS) %f -o %o |> test
+!run_test = | test |> valgrind --leak-check=full --show-reachable=yes ./test |>
+
