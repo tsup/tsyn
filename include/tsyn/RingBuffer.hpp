@@ -30,7 +30,8 @@ namespace tsyn
       /*
        * Returns false if the buffer is full, otherwise item is going to be stored.
        */
-      bool push( const T& item )
+      template<typename Item>
+      bool push( Item item )
       {
         const size_t currentHead( m_head.load( std::memory_order_relaxed ) );
         const size_t nextHead( next( currentHead ) );
@@ -40,7 +41,7 @@ namespace tsyn
           return false;
         }
 
-        m_buffer[ currentHead ] = item;
+        m_buffer[ currentHead ] = std::move(item);
         m_head.store( nextHead, std::memory_order_release );
         return true;
       }

@@ -97,6 +97,16 @@ Describe( ringbuffer )
 
   };
 
+  Describe( basic_behavior_with_moveable_only_type )
+  {
+    typedef tsyn::RingBuffer< std::unique_ptr<int>, 4 > BufferType;
+    It ( can_push_into_buffer )
+    {
+      BufferType buffer;
+      buffer.push( std::unique_ptr<int>( new int(15) ) );
+    }
+  };
+
   Describe( multithreaded_behavior )
   {
     It( should_be_threadsafe_with_one_producer_and_one_consumer )
