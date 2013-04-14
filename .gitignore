@@ -1,0 +1,11 @@
+*.o
+*.so
+*~
+*.swp
+*.gcno
+*.gcda
+*.gcov
+.tup
+test
+demo
+
