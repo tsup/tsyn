@@ -115,7 +115,7 @@ Describe( ringbuffer )
   {
     It( should_be_threadsafe_with_one_producer_and_one_consumer )
     {
-      const int N( 20 );
+      const int N( 6 );
       BufferType buffer;
       ThreadRaii producer(
           [ &buffer ]()
