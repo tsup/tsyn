@@ -59,7 +59,7 @@ namespace tsyn
           return false;
         }
 
-        item = m_buffer[ currentTail ];
+        item = std::move( m_buffer[ currentTail ] );
         m_tail.store( next( currentTail ), std::memory_order_release );
         return true;
       }

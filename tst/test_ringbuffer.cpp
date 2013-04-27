@@ -100,10 +100,14 @@ Describe( ringbuffer )
   Describe( basic_behavior_with_moveable_only_type )
   {
     typedef tsyn::RingBuffer< std::unique_ptr<int>, 4 > BufferType;
-    It ( can_push_into_buffer )
+    It ( can_push_to_and_pop_from_buffer )
     {
       BufferType buffer;
-      buffer.push( std::unique_ptr<int>( new int(15) ) );
+      static const int value( 15 );
+      buffer.push( std::unique_ptr<int>( new int( value ) ) );
+      std::unique_ptr<int> item( nullptr );
+      buffer.pop( item );
+      AssertThat( *item, Equals( value ) );
     }
   };
 
