@@ -1,9 +1,10 @@
 include_rules
 
-LIBS+= -pthread
+LIBS+= -pthread -l$(LIB_TSYN)
 EXTRADEP+=
+LIBPATH+= -L$(LD_PATH)
 
-: foreach *.cpp |> !cpp |>
-: *.o |> !link_test |>
+: foreach *.cpp |> !cpp |> {test_objs}
+: {test_objs} | $(LD_PATH)/$(LIB_TSYN_SO) |> !link_test |>
 : |> !run_test |>
 

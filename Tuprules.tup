@@ -6,7 +6,13 @@ EXTRADEP=
 
 CXX=g++
 
+LD_PATH=$(PHOME)/src
+
+LIB_TSYN=tsyn
+LIB_TSYN_SO=lib$(LIB_TSYN).so
+
 !cpp = |> $(CXX) $(CFLAGS) $(INCLUDE_PATH) %f -c |> %B.o
+!link_lib = |> $(CXX) $(LIBS) -shared %f -o %o |>
 !link_test = |> $(CXX) $(CFLAGS) $(LIBPATH) $(LIBS) %f -o %o |> test
-!run_test = | test |> valgrind --leak-check=full --show-reachable=yes ./test |>
+!run_test = | test |> LD_LIBRARY_PATH=$(LD_PATH) valgrind --leak-check=full --show-reachable=yes ./test |>
 
