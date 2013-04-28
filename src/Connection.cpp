@@ -4,6 +4,7 @@
 #include <limits>
 #include <tsyn/Clock.hpp>
 
+#include "Message.hpp"
 #include "Sender.hpp"
 #include "RingBuffer.hpp"
 

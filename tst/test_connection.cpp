@@ -5,6 +5,7 @@ using namespace igloo;
 #include <random>
 
 #include <Connection.hpp>
+#include <Message.hpp>
 #include <Sender.hpp>
 #include <Types.hpp>
 #include <RingBuffer.hpp>

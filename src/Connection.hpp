@@ -6,13 +6,6 @@
 
 namespace tsyn
 {
-  struct MessageType
-  {
-    enum MsgType
-    {
-      USER = 0x01
-    };
-  };
   class Connection
   {
     public:
