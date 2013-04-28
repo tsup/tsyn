@@ -1,4 +1,6 @@
 include_rules
 
+LIBS+= -lboost_system
+
 : foreach *.cpp |> !cpp |> {src_objs}
 : {src_objs} |> !link_lib |> $(LIB_TSYN_SO)
