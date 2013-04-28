@@ -1,12 +1,15 @@
 #include "Connection.hpp"
 
+#include <sstream>
 #include <limits>
 #include <tsyn/Clock.hpp>
 
 #include "Sender.hpp"
+#include "RingBuffer.hpp"
 
-tsyn::Connection::Connection( SenderRef sender )
+tsyn::Connection::Connection( SenderRef sender, ReceiveQueue & receiveQueue )
   : m_sender( std::move(sender) )
+  , m_receiveQueue(receiveQueue)
 {
 }
 
@@ -58,10 +61,27 @@ tsyn::Data createMessage(tsyn::Clock::Time time, uint8_t type, const tsyn::Data 
   return message;
 }
 
+
 }
 
 void tsyn::Connection::send( const tsyn::Data & payload, tsyn::Clock::Time timestamp )
 {
   m_sender->send( createMessage(timestamp, MessageType::USER, payload) );
+}
+
+void tsyn::Connection::receive( const tsyn::Data & receivedData )
+{
+  QueueData::Ref queueData( new QueueData );
+  queueData->timestamp = 0ULL;
+
+  for ( size_t i = 0; i < 8; ++i )
+  {
+    queueData->timestamp <<= 8;
+    queueData->timestamp |= ( receivedData[i] & 0xff );
+  }
+  queueData->peerId = "TODO";
+  queueData->payload = receivedData.substr( HEADER_LENGTH );
+
+  m_receiveQueue.push( std::move(queueData) );
 }
 

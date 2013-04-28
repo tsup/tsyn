@@ -16,10 +16,12 @@ namespace tsyn
   class Connection
   {
     public:
-      Connection( SenderRef sender );
+      Connection( SenderRef sender, ReceiveQueue & recvQueue );
 
       void send( const tsyn::Data & payload, tsyn::Clock::Time timestamp );
+      void receive( const tsyn::Data & receivedData );
     private:
       SenderRef m_sender;
+      ReceiveQueue & m_receiveQueue;
   };
 }
