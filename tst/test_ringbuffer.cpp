@@ -4,7 +4,7 @@ using namespace igloo;
 #include <algorithm>
 #include <array>
 #include <thread>
-#include <tsyn/RingBuffer.hpp>
+#include <RingBuffer.hpp>
 
 namespace
 {
