@@ -5,18 +5,18 @@
 #include <tsyn/Clock.hpp>
 
 #include "Message.hpp"
-#include "Sender.hpp"
+#include "LowLevelConnection.hpp"
 #include "RingBuffer.hpp"
 
-tsyn::Connection::Connection( SenderRef sender, ReceiveQueue & receiveQueue )
-  : m_sender( std::move(sender) )
+tsyn::Connection::Connection( LowLevelConnectionRef lowLevelConn, ReceiveQueue & receiveQueue )
+  : m_lowLevelConn( std::move(lowLevelConn) )
   , m_receiveQueue(receiveQueue)
 {
 }
 
 void tsyn::Connection::send( const tsyn::Data & payload, tsyn::Clock::Time timestamp )
 {
-  m_sender->send( serialize( Message{timestamp, MessageType::USER, payload} ) );
+  m_lowLevelConn->send( serialize( Message{timestamp, MessageType::USER, payload} ) );
 }
 
 void tsyn::Connection::receive( const tsyn::Data & receivedData )

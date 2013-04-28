@@ -6,7 +6,7 @@ using namespace igloo;
 
 #include <Connection.hpp>
 #include <Message.hpp>
-#include <Sender.hpp>
+#include <LowLevelConnection.hpp>
 #include <Types.hpp>
 #include <RingBuffer.hpp>
 
@@ -14,9 +14,9 @@ using namespace igloo;
 
 #include "helpers.hpp"
 
-struct SenderStub : public tsyn::Sender
+struct LowLevelConnectionStub : public tsyn::LowLevelConnection
 {
-  typedef std::unique_ptr<SenderStub> Ref;
+  typedef std::unique_ptr<LowLevelConnectionStub> Ref;
   virtual void send( const tsyn::Data& data ) override
   {
     sentDatas.push_back( data );
@@ -26,8 +26,8 @@ struct SenderStub : public tsyn::Sender
 
 Describe(AConnection)
 {
-  SenderStub::Ref senderStubRef;
-  SenderStub * sender;
+  LowLevelConnectionStub::Ref lowLevelConnStubRef;
+  LowLevelConnectionStub * lowLevelConn;
 
   tsyn::ReceiveQueue receiveQueue;
   const tsyn::Clock::Time bigTimeStamp = 17046888542305855661ULL;
@@ -36,8 +36,8 @@ Describe(AConnection)
 
   void SetUp()
   {
-    senderStubRef.reset( new SenderStub );
-    sender = senderStubRef.get();
+    lowLevelConnStubRef.reset( new LowLevelConnectionStub );
+    lowLevelConn = lowLevelConnStubRef.get();
   }
 
   void TearDown()
@@ -48,13 +48,13 @@ Describe(AConnection)
 
   It(can_be_instantiated)
   {
-    tsyn::Connection conn( std::move(senderStubRef), receiveQueue );
+    tsyn::Connection conn( std::move(lowLevelConnStubRef), receiveQueue );
   }
 
-  It(can_send_bytes_to_the_sender)
+  It(can_send_bytes_to_the_lowLevelConnection)
   {
     // Arrange
-    tsyn::Connection conn( std::move(senderStubRef), receiveQueue );
+    tsyn::Connection conn( std::move(lowLevelConnStubRef), receiveQueue );
 
     tsyn::Data payload = generateRandomPayloadWithLength( 300 );
     tsyn::Data expectedSentBytes = generateUserMessage( payload, bigTimeStamp );
@@ -63,12 +63,12 @@ Describe(AConnection)
     conn.send( payload, bigTimeStamp );
 
     // Assert
-    AssertThat( sender->sentDatas.back(), Equals( expectedSentBytes ) );
+    AssertThat( lowLevelConn->sentDatas.back(), Equals( expectedSentBytes ) );
   }
 
   It(should_push_received_messages_to_queue)
   {
-    tsyn::Connection connection( std::move(senderStubRef), receiveQueue );
+    tsyn::Connection connection( std::move(lowLevelConnStubRef), receiveQueue );
 
     tsyn::Data payload = generateRandomPayloadWithLength( 10 );
     tsyn::Data incomingMessage = generateUserMessage(payload,bigTimeStamp).substr(4); // cut off length ( 4 bytes )

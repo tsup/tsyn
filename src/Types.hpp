@@ -6,8 +6,8 @@
 
 namespace tsyn
 {
-  class Sender;
-  typedef std::unique_ptr< Sender > SenderRef;
+  class LowLevelConnection;
+  typedef std::unique_ptr< LowLevelConnection > LowLevelConnectionRef;
 
   template<typename T, size_t Size>
   class RingBuffer;

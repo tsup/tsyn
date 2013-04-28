@@ -5,11 +5,11 @@
 namespace tsyn
 {
 
-  class Sender
+  class LowLevelConnection
   {
     public:
       virtual void send( const Data& data ) = 0;
-      virtual ~Sender() {}
+      virtual ~LowLevelConnection() {}
   };
 
 }
