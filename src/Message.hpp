@@ -18,5 +18,6 @@ namespace tsyn
     uint8_t type;
     Data payload;
   };
+  Data serialize( const Message& msg );
 }
 

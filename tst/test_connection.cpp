@@ -12,6 +12,8 @@ using namespace igloo;
 
 #include <tsyn/Clock.hpp>
 
+#include "helpers.hpp"
+
 struct SenderStub : public tsyn::Sender
 {
   typedef std::unique_ptr<SenderStub> Ref;
@@ -101,26 +103,6 @@ Describe(AConnection)
     std::generate( ret.begin(), ret.end(),
         std::bind(distribution, std::ref(randomDevice)) );
     return ret;
-  }
-
-  tsyn::Data generateUserMessage( const tsyn::Data & payload, tsyn::Clock::Time ts )
-  {
-    uint32_t msgLength = HEADER_LENGTH + payload.length();
-    tsyn::Data message = extractBytes( msgLength, 4 );
-    message += extractBytes( ts, 8 );
-    message += tsyn::MessageType::USER;
-    message += payload;
-    return message;
-  }
-
-  std::string extractBytes( uint64_t value, size_t numberOfBytes )
-  {
-    std::string extracted;
-    for ( int i = numberOfBytes-1; i >= 0; --i )
-    {
-      extracted += ( value >> i * 8 ) & 0xff;
-    }
-    return extracted;
   }
 
   std::vector<tsyn::QueueData::Ref> transformReceiveQueue()
