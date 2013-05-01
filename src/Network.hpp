@@ -10,7 +10,7 @@ namespace tsyn
   class TcpConnection
   {
     public:
-      typedef std::shared_ptr< TcpConnection > Ref;
+      typedef std::unique_ptr< TcpConnection > Ref;
       TcpConnection( boost::asio::io_service& io_service )
         : m_socket( io_service )
       {
@@ -56,6 +56,7 @@ namespace tsyn
                    const boost::asio::ip::tcp::endpoint& endpoint )
         : m_service( io_service )
         , m_acceptor( io_service, endpoint )
+        , m_nextConnection( nullptr )
       {
         start_accept();
       }
@@ -63,31 +64,29 @@ namespace tsyn
 
       void start_accept()
       {
-        TcpConnection::Ref new_connection( new TcpConnection( m_service ) );
+        m_nextConnection.reset( new TcpConnection( m_service ) );
         m_acceptor.async_accept(
-            new_connection->socket(),
+            m_nextConnection->socket(),
             std::bind( &TcpAcceptor::handle_accept, this,
-                       new_connection,
                        std::placeholders::_1 ) );
       }
 
 
-      void handle_accept(
-          TcpConnection::Ref connection,
-          const boost::system::error_code& error )
+      void handle_accept( const boost::system::error_code& error )
       {
         if ( error )
         {
+          m_nextConnection.reset( nullptr );
           return;
         }
 
         const std::string endpoint(
-          connection->socket().remote_endpoint().address().to_string() +
+          m_nextConnection->socket().remote_endpoint().address().to_string() +
           ":" +
-          std::to_string( connection->socket().remote_endpoint().port() ) );
+          std::to_string(m_nextConnection->socket().remote_endpoint().port() ) );
         std::cout << "Connection accepted from: " << endpoint << std::endl;
-        m_connections.push_back( connection );
-        connection->start();
+        m_nextConnection->start();
+        m_connections.push_back( std::move( m_nextConnection ) );
         start_accept();
       }
 
@@ -95,6 +94,7 @@ namespace tsyn
       boost::asio::io_service&          m_service;
       boost::asio::ip::tcp::acceptor    m_acceptor;
       std::vector< TcpConnection::Ref > m_connections;
+      TcpConnection::Ref                m_nextConnection;
   };
 
 
