@@ -21,6 +21,18 @@ struct LowLevelConnectionStub : public tsyn::LowLevelConnection
   {
     sentDatas.push_back( data );
   }
+
+  virtual void start( tsyn::Connection& owner ) override
+  {
+    ownerConnection = &owner;
+  }
+
+  bool isStartedWithOwner( tsyn::Connection* expectedOwner ) const
+  {
+    return expectedOwner == ownerConnection;
+  }
+
+  tsyn::Connection* ownerConnection{ nullptr };
   std::vector< tsyn::Data > sentDatas;
 };
 
@@ -49,6 +61,13 @@ Describe(AConnection)
   It(can_be_instantiated)
   {
     tsyn::Connection conn( std::move(lowLevelConnStubRef), receiveQueue );
+  }
+
+  It(should_start_low_level_connection)
+  {
+    tsyn::Connection conn( std::move(lowLevelConnStubRef), receiveQueue );
+    AssertThat( lowLevelConn->isStartedWithOwner( &conn ),
+                Equals( true ) );
   }
 
   It(can_send_bytes_to_the_lowLevelConnection)
