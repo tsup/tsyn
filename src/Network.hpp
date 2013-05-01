@@ -5,9 +5,13 @@
 #include <iomanip>
 #include <boost/asio.hpp>
 
+#include "LowLevelConnection.hpp"
+
 namespace tsyn
 {
-  class TcpConnection
+  class Connection;
+
+  class TcpConnection : public LowLevelConnection
   {
     public:
       typedef std::unique_ptr< TcpConnection > Ref;
@@ -21,7 +25,7 @@ namespace tsyn
         return m_socket;
       }
 
-      void start()
+      void start_receive()
       {
         boost::asio::async_read(
             m_socket,
@@ -39,7 +43,15 @@ namespace tsyn
         }
 
         std::cout << "received character: " << std::setfill( '0' ) << std::setw( 2 ) << std::hex << ( int( m_data ) & 0xFF ) << std::endl;
-        start();
+        start_receive();
+      }
+
+      virtual void start( Connection& ) override
+      {
+      }
+
+      virtual void send( const Data& ) override
+      {
       }
 
     private:
@@ -85,7 +97,7 @@ namespace tsyn
           ":" +
           std::to_string(m_nextConnection->socket().remote_endpoint().port() ) );
         std::cout << "Connection accepted from: " << endpoint << std::endl;
-        m_nextConnection->start();
+        m_nextConnection->start_receive();
         m_connections.push_back( std::move( m_nextConnection ) );
         start_accept();
       }
