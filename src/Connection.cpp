@@ -12,6 +12,7 @@ tsyn::Connection::Connection( LowLevelConnectionRef lowLevelConn, ReceiveQueue &
   : m_lowLevelConn( std::move(lowLevelConn) )
   , m_receiveQueue(receiveQueue)
 {
+  m_lowLevelConn->start( *this );
 }
 
 void tsyn::Connection::send( const tsyn::Data & payload, tsyn::Clock::Time timestamp )
