@@ -9,6 +9,7 @@ namespace tsyn
   class Connection
   {
     public:
+      typedef std::unique_ptr< Connection > Ref;
       Connection( LowLevelConnectionRef lowLevelConn, ReceiveQueue & recvQueue );
 
       void send( const tsyn::Data & payload, tsyn::Clock::Time timestamp );

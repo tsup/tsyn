@@ -6,6 +6,9 @@
 #include <boost/asio.hpp>
 
 #include "LowLevelConnection.hpp"
+#include "Connection.hpp"
+#include "RingBuffer.hpp"
+#include "Types.hpp"
 
 namespace tsyn
 {
@@ -98,15 +101,18 @@ namespace tsyn
           std::to_string(m_nextConnection->socket().remote_endpoint().port() ) );
         std::cout << "Connection accepted from: " << endpoint << std::endl;
         m_nextConnection->start_receive();
-        m_connections.push_back( std::move( m_nextConnection ) );
+        m_connections.emplace_back(
+            new Connection( std::move( m_nextConnection ),
+                            m_receiveQueue ) );
         start_accept();
       }
 
     private:
       boost::asio::io_service&          m_service;
       boost::asio::ip::tcp::acceptor    m_acceptor;
-      std::vector< TcpConnection::Ref > m_connections;
+      std::vector< Connection::Ref >    m_connections;
       TcpConnection::Ref                m_nextConnection;
+      ReceiveQueue                      m_receiveQueue;
   };
 
 
