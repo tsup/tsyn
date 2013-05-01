@@ -20,6 +20,7 @@ namespace tsyn
       typedef std::unique_ptr< TcpConnection > Ref;
       TcpConnection( boost::asio::io_service& io_service )
         : m_socket( io_service )
+        , m_ownerConnection( nullptr )
       {
       }
 
@@ -28,16 +29,16 @@ namespace tsyn
         return m_socket;
       }
 
-      void start_receive()
+      void receive_length()
       {
         boost::asio::async_read(
             m_socket,
-            boost::asio::buffer( &m_data, 1 ),
-            std::bind( &TcpConnection::handle_read, this,
+            boost::asio::buffer( m_buffer, 4 ),
+            std::bind( &TcpConnection::handle_length, this,
                        std::placeholders::_1 ) );
       }
 
-      void handle_read( const boost::system::error_code& error )
+      void handle_length( const boost::system::error_code& error )
       {
         if ( error )
         {
@@ -45,12 +46,42 @@ namespace tsyn
           return;
         }
 
-        std::cout << "received character: " << std::setfill( '0' ) << std::setw( 2 ) << std::hex << ( int( m_data ) & 0xFF ) << std::endl;
-        start_receive();
+        uint32_t messageLength( 0 );
+        for ( size_t i = 0; i < 4; ++i )
+        {
+          messageLength <<= 8;
+          messageLength |= ( m_buffer[i] & 0xff );
+        }
+        std::cout << "received length: " << messageLength << std::endl;
+        receive_payload( messageLength );
       }
 
-      virtual void start( Connection& ) override
+      void receive_payload( uint32_t payloadLength  )
       {
+        boost::asio::async_read(
+            m_socket,
+            boost::asio::buffer( m_buffer, payloadLength ),
+            std::bind( &TcpConnection::handle_payload, this, payloadLength,
+                       std::placeholders::_1 ) );
+      }
+
+      void handle_payload( uint32_t length, const boost::system::error_code& error )
+      {
+        if ( error )
+        {
+          std::cout << "connection error: " << error << std::endl;
+          return;
+        }
+
+        std::cout << "received payload:" << Data( m_buffer, length ) << std::endl;
+        m_ownerConnection->receive( Data( m_buffer, length ) );
+        receive_length();
+      }
+
+      virtual void start( Connection& owner ) override
+      {
+        m_ownerConnection = &owner;
+        receive_length();
       }
 
       virtual void send( const Data& ) override
@@ -59,7 +90,9 @@ namespace tsyn
 
     private:
       boost::asio::ip::tcp::socket m_socket;
-      char m_data;
+      char m_buffer[ 1024 ];
+      Connection* m_ownerConnection;
+      uint32_t m_payloadLength;
   };
 
 
@@ -68,10 +101,12 @@ namespace tsyn
     public:
       typedef std::unique_ptr< TcpAcceptor > Ref;
       TcpAcceptor( boost::asio::io_service& io_service,
-                   const boost::asio::ip::tcp::endpoint& endpoint )
+                   const boost::asio::ip::tcp::endpoint& endpoint,
+                   ReceiveQueue& receiveQueue )
         : m_service( io_service )
         , m_acceptor( io_service, endpoint )
         , m_nextConnection( nullptr )
+        , m_receiveQueue( receiveQueue )
       {
         start_accept();
       }
@@ -100,7 +135,6 @@ namespace tsyn
           ":" +
           std::to_string(m_nextConnection->socket().remote_endpoint().port() ) );
         std::cout << "Connection accepted from: " << endpoint << std::endl;
-        m_nextConnection->start_receive();
         m_connections.emplace_back(
             new Connection( std::move( m_nextConnection ),
                             m_receiveQueue ) );
@@ -112,7 +146,7 @@ namespace tsyn
       boost::asio::ip::tcp::acceptor    m_acceptor;
       std::vector< Connection::Ref >    m_connections;
       TcpConnection::Ref                m_nextConnection;
-      ReceiveQueue                      m_receiveQueue;
+      ReceiveQueue&                     m_receiveQueue;
   };
 
 
@@ -122,7 +156,7 @@ namespace tsyn
       void listen( int port )
       {
         boost::asio::ip::tcp::endpoint endpoint( boost::asio::ip::tcp::v4(), port );
-        m_acceptors.emplace_back( new TcpAcceptor( m_service, endpoint ) );
+        m_acceptors.emplace_back( new TcpAcceptor( m_service, endpoint, m_receiveQueue ) );
       }
 
       void run();
@@ -131,6 +165,7 @@ namespace tsyn
       std::thread                     m_networkThread;
       boost::asio::io_service         m_service;
       std::vector< TcpAcceptor::Ref > m_acceptors;
+      ReceiveQueue                    m_receiveQueue;
   };
 
 }
