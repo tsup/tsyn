@@ -5,68 +5,14 @@
 #include <iomanip>
 #include <boost/asio.hpp>
 
+#include "TcpAcceptor.hpp"
 #include "LowLevelConnection.hpp"
 #include "Connection.hpp"
 #include "RingBuffer.hpp"
 #include "Types.hpp"
-#include "TcpConnection.hpp"
 
 namespace tsyn
 {
-
-
-  class TcpAcceptor
-  {
-    public:
-      typedef std::unique_ptr< TcpAcceptor > Ref;
-      TcpAcceptor( boost::asio::io_service& io_service,
-                   const boost::asio::ip::tcp::endpoint& endpoint,
-                   ReceiveQueue& receiveQueue )
-        : m_service( io_service )
-        , m_acceptor( io_service, endpoint )
-        , m_nextConnection( nullptr )
-        , m_receiveQueue( receiveQueue )
-      {
-        start_accept();
-      }
-
-
-      void start_accept()
-      {
-        m_nextConnection.reset( new TcpConnection( m_service ) );
-        m_acceptor.async_accept(
-            m_nextConnection->socket(),
-            std::bind( &TcpAcceptor::handle_accept, this,
-                       std::placeholders::_1 ) );
-      }
-
-
-      void handle_accept( const boost::system::error_code& error )
-      {
-        if ( error )
-        {
-          m_nextConnection.reset( nullptr );
-          return;
-        }
-
-        const std::string endpoint(
-          m_nextConnection->socket().remote_endpoint().address().to_string() +
-          ":" +
-          std::to_string(m_nextConnection->socket().remote_endpoint().port() ) );
-        std::cout << "Connection accepted from: " << endpoint << std::endl;
-        m_connections.emplace_back(
-            new Connection( std::move( m_nextConnection ),
-                            m_receiveQueue ) );
-        start_accept();
-      }
-
-    private:
-      boost::asio::io_service&          m_service;
-      boost::asio::ip::tcp::acceptor    m_acceptor;
-      std::vector< Connection::Ref >    m_connections;
-      TcpConnection::Ref                m_nextConnection;
-      ReceiveQueue&                     m_receiveQueue;
-  };
 
   class UdpPeer : public LowLevelConnection
   {
