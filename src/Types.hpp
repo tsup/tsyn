@@ -18,5 +18,11 @@ namespace tsyn
   typedef QueueData SendQueueData;
   constexpr size_t SEND_QUEUE_SIZE = 1024;
   typedef RingBuffer< SendQueueData::Ref, SEND_QUEUE_SIZE > SendQueue;
+
+  class UdpSocket;
+  typedef std::unique_ptr< UdpSocket > UdpSocketRef;
+
+  class TcpAcceptor;
+  typedef std::unique_ptr< TcpAcceptor > TcpAcceptorRef;
 }
 
