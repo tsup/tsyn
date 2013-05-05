@@ -43,12 +43,13 @@ tsyn::UdpSocket::messageArrivedTo( const boost::asio::ip::udp::endpoint & remote
   auto it = m_udpConnections.find(remote);
   if ( m_udpConnections.end() == it )
   {
-    UdpConnection* newUdpConnection( new UdpConnection );
-    auto result = m_udpConnections.emplace( remote, newUdpConnection );
+    UdpConnection::Ref newUdpConnection( new UdpConnection );
+    auto result = m_udpConnections.emplace( remote, newUdpConnection.get() );
     m_connections.emplace_back( new Connection(
-          LowLevelConnectionRef( newUdpConnection ), m_receiveQueue ) );
+          LowLevelConnectionRef( std::move( newUdpConnection ) ), m_receiveQueue ) );
     it = result.first;
   }
+
   it->second->receive( Data( begin(m_buffer), end(m_buffer) ) );
 }
 
