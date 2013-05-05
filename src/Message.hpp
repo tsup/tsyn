@@ -4,7 +4,6 @@
 
 namespace tsyn
 {
-  constexpr uint32_t HEADER_LENGTH = 9;
   struct MessageType
   {
     enum MsgType
@@ -14,6 +13,9 @@ namespace tsyn
   };
   struct Message
   {
+    static constexpr uint32_t LENGTH_SIZE = 4;
+    static constexpr uint32_t HEADER_LENGTH = 9;
+
     Clock::Time timestamp;
     uint8_t type;
     Data payload;

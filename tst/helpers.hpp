@@ -2,6 +2,7 @@
 
 #include <Types.hpp>
 
+#include "Message.hpp"
 #include <tsyn/Clock.hpp>
 
 inline std::string extractBytes( uint64_t value, size_t numberOfBytes )
@@ -16,7 +17,7 @@ inline std::string extractBytes( uint64_t value, size_t numberOfBytes )
 
 inline tsyn::Data generateUserMessage( const tsyn::Data & payload, tsyn::Clock::Time ts )
 {
-  uint32_t msgLength = tsyn::HEADER_LENGTH + payload.length();
+  uint32_t msgLength = tsyn::Message::HEADER_LENGTH + payload.length();
   tsyn::Data message = extractBytes( msgLength, 4 );
   message += extractBytes( ts, 8 );
   message += tsyn::MessageType::USER;

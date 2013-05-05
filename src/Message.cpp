@@ -37,7 +37,7 @@ tsyn::Data tsyn::serialize( const tsyn::Message& msg )
 {
   tsyn::Data message;
 
-  uint32_t length = tsyn::HEADER_LENGTH + msg.payload.length();
+  uint32_t length = tsyn::Message::HEADER_LENGTH + msg.payload.length();
 
   extractBytesFrom(length).to(message);
   extractBytesFrom(msg.timestamp).to(message);

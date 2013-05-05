@@ -31,7 +31,7 @@ void tsyn::Connection::receive( const tsyn::Data & receivedData )
     queueData->timestamp |= ( receivedData[i] & 0xff );
   }
   queueData->peerId = "TODO";
-  queueData->payload = receivedData.substr( HEADER_LENGTH );
+  queueData->payload = receivedData.substr( Message::HEADER_LENGTH );
 
   m_receiveQueue.push( std::move(queueData) );
 }

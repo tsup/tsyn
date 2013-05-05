@@ -17,7 +17,7 @@ using namespace igloo;
 struct LowLevelConnectionStub : public tsyn::LowLevelConnection
 {
   typedef std::unique_ptr<LowLevelConnectionStub> Ref;
-  virtual void send( const tsyn::Data& data ) override
+  virtual void send( tsyn::Data&& data ) override
   {
     sentDatas.push_back( data );
   }

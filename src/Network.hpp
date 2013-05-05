@@ -9,91 +9,10 @@
 #include "Connection.hpp"
 #include "RingBuffer.hpp"
 #include "Types.hpp"
+#include "TcpConnection.hpp"
 
 namespace tsyn
 {
-  class Connection;
-
-  class TcpConnection : public LowLevelConnection
-  {
-    public:
-      typedef std::unique_ptr< TcpConnection > Ref;
-      TcpConnection( boost::asio::io_service& io_service )
-        : m_socket( io_service )
-        , m_ownerConnection( nullptr )
-      {
-      }
-
-      boost::asio::ip::tcp::socket& socket()
-      {
-        return m_socket;
-      }
-
-      void receive_length()
-      {
-        boost::asio::async_read(
-            m_socket,
-            boost::asio::buffer( m_buffer, 4 ),
-            std::bind( &TcpConnection::handle_length, this,
-                       std::placeholders::_1 ) );
-      }
-
-      void handle_length( const boost::system::error_code& error )
-      {
-        if ( error )
-        {
-          std::cout << "connection error: " << error << std::endl;
-          return;
-        }
-
-        uint32_t messageLength( 0 );
-        for ( size_t i = 0; i < 4; ++i )
-        {
-          messageLength <<= 8;
-          messageLength |= ( m_buffer[i] & 0xff );
-        }
-        std::cout << "received length: " << messageLength << std::endl;
-        receive_payload( messageLength );
-      }
-
-      void receive_payload( uint32_t payloadLength  )
-      {
-        boost::asio::async_read(
-            m_socket,
-            boost::asio::buffer( m_buffer, payloadLength ),
-            std::bind( &TcpConnection::handle_payload, this, payloadLength,
-                       std::placeholders::_1 ) );
-      }
-
-      void handle_payload( uint32_t length, const boost::system::error_code& error )
-      {
-        if ( error )
-        {
-          std::cout << "connection error: " << error << std::endl;
-          return;
-        }
-
-        std::cout << "received payload:" << Data( m_buffer, length ) << std::endl;
-        m_ownerConnection->receive( Data( m_buffer, length ) );
-        receive_length();
-      }
-
-      virtual void start( Connection& owner ) override
-      {
-        m_ownerConnection = &owner;
-        receive_length();
-      }
-
-      virtual void send( const Data& ) override
-      {
-      }
-
-    private:
-      boost::asio::ip::tcp::socket m_socket;
-      char m_buffer[ 1024 ];
-      Connection* m_ownerConnection;
-      uint32_t m_payloadLength;
-  };
 
 
   class TcpAcceptor
@@ -161,7 +80,7 @@ namespace tsyn
       {
         m_ownerConnection = &ownerConnection;
       }
-      virtual void send( const Data& ) override
+      virtual void send( Data&& ) override
       {}
 
       void receive( const Data& data )
