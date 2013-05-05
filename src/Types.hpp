@@ -3,6 +3,7 @@
 #include <memory>
 
 #include <tsyn/Types.hpp>
+#include "PeerIndexedContainer.hpp"
 
 namespace tsyn
 {
@@ -24,5 +25,8 @@ namespace tsyn
 
   class TcpAcceptor;
   typedef std::unique_ptr< TcpAcceptor > TcpAcceptorRef;
+
+  class Connection;
+  typedef PeerIndexedContainer< Connection > ConnectionTable;
 }
 

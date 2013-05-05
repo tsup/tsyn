@@ -7,6 +7,7 @@
 #include "Types.hpp"
 #include "TcpAcceptor.hpp"
 #include "UdpSocket.hpp"
+#include "PeerIndexedContainer.hpp"
 
 namespace tsyn
 {
@@ -25,6 +26,7 @@ namespace tsyn
       std::vector< TcpAcceptorRef >   m_acceptors;
       std::vector< UdpSocketRef >     m_udpSockets;
       ReceiveQueue                    m_receiveQueue;
+      ConnectionTable                 m_connectionTable;
   };
 
 }

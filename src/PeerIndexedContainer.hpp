@@ -3,6 +3,7 @@
 #include <memory>
 #include <map>
 #include <tsyn/Peer.hpp>
+#include <cassert>
 
 namespace tsyn
 {

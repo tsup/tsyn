@@ -4,11 +4,13 @@
 
 tsyn::TcpAcceptor::TcpAcceptor( boost::asio::io_service& io_service,
                    const boost::asio::ip::tcp::endpoint& endpoint,
-                   ReceiveQueue& receiveQueue )
+                   ReceiveQueue& receiveQueue,
+                   ConnectionTable& connections )
   : m_service( io_service )
   , m_acceptor( io_service, endpoint )
   , m_nextConnection( nullptr )
   , m_receiveQueue( receiveQueue )
+  , m_connections( connections )
 {
   startAccept();
 }
@@ -34,14 +36,22 @@ tsyn::TcpAcceptor::handleAccept( const boost::system::error_code& error )
     return;
   }
 
-  const std::string endpoint(
+  const std::string endpoint( std::string( "tcp://" ) +
       m_nextConnection->socket().remote_endpoint().address().to_string() + ":" +
       std::to_string(m_nextConnection->socket().remote_endpoint().port() ) );
 
   std::cout << "Connection accepted from: " << endpoint << std::endl;
-  m_connections.emplace_back(
-      new Connection( std::move( m_nextConnection ),
-      m_receiveQueue ) );
+  if ( m_connections.hasKey( endpoint ) )
+  {
+    m_nextConnection.reset( nullptr );
+    startAccept();
+    return;
+  }
+
+  m_connections.insert( endpoint,
+                        Connection::Ref( new Connection(
+                            std::move( m_nextConnection ),
+                            m_receiveQueue ) ) );
   startAccept();
 }
 

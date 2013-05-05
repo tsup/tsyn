@@ -2,6 +2,7 @@
 
 #include "Connection.hpp"
 #include "TcpConnection.hpp"
+#include "Types.hpp"
 
 namespace tsyn
 {
@@ -11,7 +12,8 @@ namespace tsyn
       typedef std::unique_ptr< TcpAcceptor > Ref;
       TcpAcceptor( boost::asio::io_service& io_service,
                    const boost::asio::ip::tcp::endpoint& endpoint,
-                   ReceiveQueue& receiveQueue );
+                   ReceiveQueue& receiveQueue,
+                   ConnectionTable& connections );
 
     private:
       void startAccept();
@@ -19,9 +21,9 @@ namespace tsyn
 
       boost::asio::io_service&          m_service;
       boost::asio::ip::tcp::acceptor    m_acceptor;
-      std::vector< Connection::Ref >    m_connections;
       TcpConnection::Ref                m_nextConnection;
       ReceiveQueue&                     m_receiveQueue;
+      ConnectionTable&                  m_connections;
   };
 }
 
