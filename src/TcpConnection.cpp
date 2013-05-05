@@ -79,6 +79,7 @@ tsyn::TcpConnection::handleMessageRead( const boost::system::error_code& )
 {
   std::cout << Data( &m_buffer[ tsyn::Message::HEADER_LENGTH ], m_payloadLength ).c_str() << std::endl;
   m_ownerConnection->receive( Data( &m_buffer[ tsyn::Message::HEADER_LENGTH ], m_payloadLength ) );
+  startLengthRead();
 }
 
 
