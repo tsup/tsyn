@@ -5,6 +5,7 @@ EXTRADEP+=
 LIBPATH+= -L$(LD_PATH)
 INCLUDE_PATH+= -I$(PHOME)/src
 
-: foreach *.cpp |> !cpp |> {test_objs}
-: {test_objs} | $(LD_PATH)/$(LIB_TSYN_SO) |> !link_test |>
+: foreach *.cpp |> !cpp |>
+: server_*.o | $(LD_PATH)/$(LIB_TSYN_SO) |> !link_binary |> server_demo
+: client_*.o | $(LD_PATH)/$(LIB_TSYN_SO) |> !link_binary |> client_demo
 
