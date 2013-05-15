@@ -20,7 +20,10 @@ void
 tsyn::Network::stop()
 {
   m_service.stop();
-  m_networkThread.join();
+  if ( m_networkThread.joinable() )
+  {
+      m_networkThread.join();
+  }
 }
 
 
