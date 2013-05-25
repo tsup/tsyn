@@ -1,6 +1,9 @@
 #include "Network.hpp"
 #include "TcpAcceptor.hpp"
 #include "UdpSocket.hpp"
+#include "Endpoint.hpp"
+#include "TcpConnection.hpp"
+#include "UdpConnection.hpp"
 
 #include <boost/asio.hpp>
 #include <thread>
@@ -39,5 +42,16 @@ tsyn::Network::listenUdp( int port )
 {
   boost::asio::ip::udp::endpoint localEndpoint( boost::asio::ip::udp::v4(), port );
   m_udpSockets.emplace_back( new UdpSocket( m_service, localEndpoint, m_receiveQueue, m_connectionTable ) );
+}
+
+
+void
+tsyn::Network::connectTo( const std::string& address )
+{
+  tsyn::Endpoint endpoint( address );
+  m_connectionTable.insert( address,
+      endpoint.protocol() == Proto::TCP ?
+        TcpConnection::connectTo( endpoint, m_service ) :
+        UdpConnection::connectTo( endpoint, m_service ) );
 }
 

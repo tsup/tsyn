@@ -28,5 +28,6 @@ namespace tsyn
 
   class Connection;
   typedef PeerIndexedContainer< Connection > ConnectionTable;
+  typedef std::unique_ptr< Connection > ConnectionRef;
 }
 

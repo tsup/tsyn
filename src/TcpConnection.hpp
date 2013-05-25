@@ -4,12 +4,14 @@
 #include <array>
 #include <boost/asio.hpp>
 
+#include "Types.hpp"
 #include "LowLevelConnection.hpp"
 
 namespace tsyn
 {
 
   class Connection;
+  class Endpoint;
 
   class TcpConnection : public LowLevelConnection
   {
@@ -20,6 +22,7 @@ namespace tsyn
       virtual void send( Data&& message ) override;
 
       boost::asio::ip::tcp::socket& socket();
+      static ConnectionRef connectTo( const Endpoint& endpoint, boost::asio::io_service& );
 
     private:
       void startLengthRead();

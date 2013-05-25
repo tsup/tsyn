@@ -28,3 +28,10 @@ tsyn::UdpConnection::send( Data&& )
 {
 }
 
+
+tsyn::ConnectionRef
+tsyn::UdpConnection::connectTo( const Endpoint&, boost::asio::io_service& )
+{
+  return ConnectionRef( nullptr );
+}
+
