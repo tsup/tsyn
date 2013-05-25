@@ -22,7 +22,7 @@ namespace tsyn
       virtual void send( Data&& message ) override;
 
       boost::asio::ip::tcp::socket& socket();
-      static ConnectionRef connectTo( const Endpoint& endpoint, boost::asio::io_service& );
+      static Ref connectTo( const Endpoint& endpoint, boost::asio::io_service& );
 
     private:
       void startLengthRead();

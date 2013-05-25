@@ -44,14 +44,31 @@ tsyn::Network::listenUdp( int port )
   m_udpSockets.emplace_back( new UdpSocket( m_service, localEndpoint, m_receiveQueue, m_connectionTable ) );
 }
 
+namespace
+{
+  tsyn::LowLevelConnectionRef createLowLevelConnection(
+      const tsyn::Endpoint& endpoint,
+      boost::asio::io_service& ioservice )
+  {
+    if ( tsyn::Proto::TCP == endpoint.protocol() )
+    {
+      return tsyn::LowLevelConnectionRef(
+          tsyn::TcpConnection::connectTo( endpoint, ioservice ) );
+    }
+
+    return tsyn::LowLevelConnectionRef(
+        tsyn::UdpConnection::connectTo( endpoint, ioservice ) );
+  }
+}
 
 void
 tsyn::Network::connectTo( const std::string& address )
 {
   tsyn::Endpoint endpoint( address );
-  m_connectionTable.insert( address,
-      endpoint.protocol() == Proto::TCP ?
-        TcpConnection::connectTo( endpoint, m_service ) :
-        UdpConnection::connectTo( endpoint, m_service ) );
+  m_connectionTable.insert(
+      address,
+      ConnectionRef( new Connection(
+          createLowLevelConnection( endpoint, m_service ),
+          m_receiveQueue ) ) );
 }
 

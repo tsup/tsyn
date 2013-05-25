@@ -96,9 +96,9 @@ tsyn::TcpConnection::socket()
 }
 
 
-tsyn::ConnectionRef
+tsyn::TcpConnection::Ref
 tsyn::TcpConnection::connectTo( const Endpoint&, boost::asio::io_service& )
 {
-  return ConnectionRef( nullptr );
+  return Ref( nullptr );
 }
 

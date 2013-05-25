@@ -18,7 +18,7 @@ namespace tsyn
       virtual void send( Data&& ) override;
       void receive( const Data& data );
 
-      static ConnectionRef connectTo( const Endpoint&, boost::asio::io_service& );
+      static Ref connectTo( const Endpoint&, boost::asio::io_service& );
 
     private:
       Connection* m_ownerConnection;
