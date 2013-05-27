@@ -52,12 +52,10 @@ namespace
   {
     if ( tsyn::Proto::TCP == endpoint.protocol() )
     {
-      return tsyn::LowLevelConnectionRef(
-          tsyn::TcpConnection::connectTo( endpoint, ioservice ) );
+      return tsyn::TcpConnection::connectTo( endpoint, ioservice );
     }
 
-    return tsyn::LowLevelConnectionRef(
-        tsyn::UdpConnection::connectTo( endpoint, ioservice ) );
+    return tsyn::UdpConnection::connectTo( endpoint, ioservice );
   }
 }
 
