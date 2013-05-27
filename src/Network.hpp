@@ -17,6 +17,7 @@ namespace tsyn
     public:
       void listenTcp( int port );
       void listenUdp( int port );
+      void connectTo( const std::string& address );
       void run();
       void stop();
 

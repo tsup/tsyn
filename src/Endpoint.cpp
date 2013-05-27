@@ -51,13 +51,14 @@ void forEachToken( const std::string & in,
 
 void checkValidIp( const std::string & ip )
 {
-    if ( std::count(ip.begin(), ip.end(), '.') != 3 )
+    const char delimiter = '.';
+
+    if ( std::count(ip.begin(), ip.end(), delimiter) != 3 )
       throw std::system_error();
 
-    char delimiter = '.';
     forEachToken( ip, delimiter, []( const std::string & token )
     {
-      int element = std::stoi(token);
+      const int element = std::stoi(token);
       if ( element < 0 || element > 255 )
         throw std::system_error();
     });
@@ -65,7 +66,7 @@ void checkValidIp( const std::string & ip )
 
 tsyn::Proto parseProto( const std::string & str )
 {
-  size_t semiColonIndex = str.find( ':' );
+  const size_t semiColonIndex = str.find( ':' );
   checkStringIndex(semiColonIndex);
   if ( 0 == str.compare(0,semiColonIndex, "tcp" ) )
   {
@@ -82,9 +83,9 @@ tsyn::Endpoint::Port parsePort( const std::string & str )
 {
   try
   {
-    size_t lastSemiColon = str.find_last_of( ':' );
+    const size_t lastSemiColon = str.find_last_of( ':' );
     checkStringIndex(lastSemiColon);
-    int port = std::stoi( str.substr( lastSemiColon+1 ) );
+    const int port = std::stoi( str.substr( lastSemiColon+1 ) );
     if ( port <= 0 || port >= 65536 )
       throw std::system_error();
     return port;
@@ -93,15 +94,15 @@ tsyn::Endpoint::Port parsePort( const std::string & str )
   catch(const std::out_of_range & ex) { throw std::system_error(); }
 }
 
-std::string parseIpAddress( const std::string & str )
+const std::string parseIpAddress( const std::string & str )
 {
-  size_t doubleSlashIndex = ( str.find( "//" )+2 ) ;
+  const size_t doubleSlashIndex = ( str.find( "//" )+2 ) ;
   checkStringIndex(doubleSlashIndex);
 
-  size_t secondSemiColonIndex = str.find( ':', doubleSlashIndex );
+  const size_t secondSemiColonIndex = str.find( ':', doubleSlashIndex );
   checkStringIndex(secondSemiColonIndex);
 
-  std::string ret = str.substr( doubleSlashIndex, secondSemiColonIndex-doubleSlashIndex );
+  const std::string ret = str.substr( doubleSlashIndex, secondSemiColonIndex-doubleSlashIndex );
   checkValidIp(ret);
   return ret;
 }
