@@ -25,6 +25,8 @@ namespace tsyn
       static Ref connectTo( const Endpoint& endpoint, boost::asio::io_service& );
 
     private:
+      TcpConnection( const boost::asio::ip::tcp::endpoint&, boost::asio::io_service& );
+
       void startLengthRead();
       void handleLengthRead( const boost::system::error_code& );
       void startMessageRead();
