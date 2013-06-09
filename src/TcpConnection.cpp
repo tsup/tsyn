@@ -1,6 +1,7 @@
 #include "TcpConnection.hpp"
 #include "Message.hpp"
 #include "Connection.hpp"
+#include "Endpoint.hpp"
 
 #include <boost/asio.hpp>
 #include <iostream>
@@ -12,6 +13,17 @@ tsyn::TcpConnection::TcpConnection( boost::asio::io_service& ioService )
   , m_ownerConnection( nullptr )
   , m_payloadLength( 0 )
 {
+}
+
+
+tsyn::TcpConnection::TcpConnection(
+    const boost::asio::ip::tcp::endpoint& endPoint, boost::asio::io_service& ioService )
+  : m_socket( ioService )
+  , m_buffer()
+  , m_ownerConnection( nullptr )
+  , m_payloadLength( 0 )
+{
+  m_socket.connect( endPoint );
 }
 
 
@@ -97,8 +109,12 @@ tsyn::TcpConnection::socket()
 
 
 tsyn::TcpConnection::Ref
-tsyn::TcpConnection::connectTo( const Endpoint&, boost::asio::io_service& )
+tsyn::TcpConnection::connectTo( const Endpoint& endPoint, boost::asio::io_service& ioService )
 {
-  return Ref( nullptr );
+  boost::asio::ip::tcp::endpoint boostEndpoint(
+      boost::asio::ip::address::from_string( endPoint.ipAddress() ),
+      endPoint.port() );
+  return Ref(
+      new TcpConnection( boostEndpoint, ioService ) );
 }
 
