@@ -9,7 +9,9 @@ tsyn::Clock::Clock()
 tsyn::Clock::Time
 tsyn::Clock::now() const
 {
-  std::chrono::microseconds delta( InternalClockType::now() - m_start );
+  std::chrono::microseconds delta(
+      std::chrono::duration_cast< std::chrono::microseconds >(
+      InternalClockType::now() - m_start ) );
   return delta.count();
 }
 
