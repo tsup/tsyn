@@ -15,7 +15,7 @@ namespace tsyn
   class Network
   {
     public:
-      Network( ReceiveQueue& receiveQueue );
+      Network( ReceiveQueue& receiveQueue, SendQueue& sendQueue );
       void listenTcp( int port );
       void listenUdp( int port );
       void connectTo( const std::string& address );
@@ -28,6 +28,7 @@ namespace tsyn
       std::vector< TcpAcceptorRef >   m_acceptors;
       std::vector< UdpSocketRef >     m_udpSockets;
       ReceiveQueue&                   m_receiveQueue;
+      SendQueue&                      m_sendQueue;
       ConnectionTable                 m_connectionTable;
   };
 
