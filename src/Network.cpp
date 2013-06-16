@@ -8,6 +8,13 @@
 #include <boost/asio.hpp>
 #include <thread>
 
+
+tsyn::Network::Network( ReceiveQueue& receiveQueue )
+  : m_receiveQueue( receiveQueue )
+{
+}
+
+
 void
 tsyn::Network::run()
 {
