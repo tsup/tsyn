@@ -70,7 +70,7 @@ tsyn::TcpConnection::handleLengthRead( const boost::system::error_code& error )
   }
 
   m_payloadLength = deserializePayloadLength( &m_buffer[ 0 ] );
-  std::cout << m_payloadLength << std::endl;
+  std::cout << "payload length: " << m_payloadLength << std::endl;
   startMessageRead();
 }
 
