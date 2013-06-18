@@ -96,8 +96,9 @@ tsyn::TcpConnection::handleMessageRead( const boost::system::error_code& )
 
 
 void
-tsyn::TcpConnection::send( Data&& )
+tsyn::TcpConnection::send( Data&& message )
 {
+  write( m_socket, boost::asio::buffer( message ) );
 }
 
 
