@@ -5,7 +5,17 @@
 
 #include <boost/asio.hpp>
 #include <iostream>
+#include <sstream>
 
+namespace
+{
+  const tsyn::Endpoint endpointFromBoost( const boost::asio::ip::tcp::endpoint& boostEndpoint )
+  {
+    std::stringstream remoteStream;
+    remoteStream << "tcp://" << boostEndpoint.address().to_string() << ":" << boostEndpoint.port();
+    return tsyn::Endpoint( remoteStream.str() );
+  }
+}
 
 tsyn::TcpConnection::TcpConnection( boost::asio::io_service& ioService )
   : m_socket( ioService )
@@ -30,6 +40,7 @@ tsyn::TcpConnection::TcpConnection(
 void
 tsyn::TcpConnection::start( Connection& ownerConnection )
 {
+  m_remoteEndpoint.reset( new Endpoint( endpointFromBoost( m_socket.remote_endpoint() ) ) );
   m_ownerConnection = &ownerConnection;
   startLengthRead();
 }
@@ -98,6 +109,7 @@ tsyn::TcpConnection::handleMessageRead( const boost::system::error_code& )
 void
 tsyn::TcpConnection::send( Data&& message )
 {
+  std::cout << "sync write: " << message;
   write( m_socket, boost::asio::buffer( message ) );
 }
 
@@ -117,5 +129,13 @@ tsyn::TcpConnection::connectTo( const Endpoint& endPoint, boost::asio::io_servic
       endPoint.port() );
   return Ref(
       new TcpConnection( boostEndpoint, ioService ) );
+}
+
+
+const tsyn::Endpoint&
+tsyn::TcpConnection::remoteEndpoint() const
+{
+  assert( m_remoteEndpoint );
+  return *m_remoteEndpoint;
 }
 

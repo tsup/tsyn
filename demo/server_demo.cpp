@@ -25,8 +25,8 @@ int main()
     if ( receiveQueue.pop( message ) )
     {
       std::cout << *message;
+      sendQueue.push( std::unique_ptr< tsyn::QueueData >( new tsyn::QueueData{ 0, message->peerId, std::string( "echo: " ) + message->payload } ) );
     }
-    sendQueue.push( std::unique_ptr< tsyn::QueueData >( new tsyn::QueueData{ 0, "appletree", "some payload" } ) );
   }
   net.stop();
   return 0;

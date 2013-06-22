@@ -7,6 +7,7 @@ tsyn::Endpoint::Endpoint( const std::string & endpointStr )
   : m_protocol( Proto::UNDEF )
   , m_ipAddress( "" )
   , m_port( 0 )
+  , m_endpointStr( endpointStr )
 {
   parse(endpointStr);
 }
@@ -114,5 +115,11 @@ void tsyn::Endpoint::parse( const std::string & endp )
   m_protocol = parseProto( endp );
   m_ipAddress = parseIpAddress( endp );
   m_port = parsePort( endp );
+}
+
+
+const std::string& tsyn::Endpoint::asStr() const
+{
+  return m_endpointStr;
 }
 

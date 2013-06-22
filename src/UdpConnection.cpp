@@ -1,5 +1,6 @@
 #include "UdpConnection.hpp"
 #include "Connection.hpp"
+#include "Endpoint.hpp"
 
 #include <iostream>
 
@@ -33,5 +34,13 @@ tsyn::UdpConnection::Ref
 tsyn::UdpConnection::connectTo( const Endpoint&, boost::asio::io_service& )
 {
   return Ref( nullptr );
+}
+
+
+const tsyn::Endpoint&
+tsyn::UdpConnection::remoteEndpoint() const
+{
+  static Endpoint TODO_retrieve_endpoint( "udp://1.1.1.1:1234" );
+  return TODO_retrieve_endpoint;
 }
 

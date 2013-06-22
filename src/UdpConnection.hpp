@@ -20,6 +20,7 @@ namespace tsyn
 
       static Ref connectTo( const Endpoint&, boost::asio::io_service& );
 
+      const Endpoint& remoteEndpoint() const;
     private:
       Connection* m_ownerConnection;
   };

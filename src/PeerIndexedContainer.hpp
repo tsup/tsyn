@@ -4,6 +4,7 @@
 #include <map>
 #include <tsyn/Peer.hpp>
 #include <cassert>
+#include <iostream>
 
 namespace tsyn
 {
@@ -21,6 +22,7 @@ namespace tsyn
       void insert( const Peer::Id& id, value_type value )
       {
         assert( !hasKey( id ) );
+        std::cout << "add id: " << id << std::endl;
         m_container.insert( std::make_pair( id, std::move( value ) ) );
       };
 
@@ -34,9 +36,11 @@ namespace tsyn
       template < typename Func >
       void on( const Peer::Id& id, Func func ) const
       {
+        std::cout << "looking for " << id << std::endl;
         typename Container::const_iterator element( m_container.find( id ) );
         if ( element == m_container.end() )
         {
+          std::cout << "none found" << std::endl;
           return;
         }
 

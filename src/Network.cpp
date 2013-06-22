@@ -28,9 +28,11 @@ tsyn::Network::run()
           std::unique_ptr< tsyn::QueueData > message;
           while ( m_sendQueue.pop( message ) )
           {
+            std::cout << "should send: " << message->payload << std::endl;
             m_connectionTable.on( message->peerId,
               [ &message ]( Connection& connection )
               {
+                std::cout << "matching connection found" << std::endl;
                 connection.send(
                   message->payload,
                   message->timestamp );
