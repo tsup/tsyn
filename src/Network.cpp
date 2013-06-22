@@ -9,8 +9,9 @@
 #include <thread>
 
 
-tsyn::Network::Network( ReceiveQueue& receiveQueue )
+tsyn::Network::Network( ReceiveQueue& receiveQueue, SendQueue& sendQueue )
   : m_receiveQueue( receiveQueue )
+  , m_sendQueue( sendQueue )
 {
 }
 
@@ -21,7 +22,23 @@ tsyn::Network::run()
   m_networkThread = std::thread(
       [ this ] ()
       {
-        m_service.run();
+        while ( true )
+        {
+          m_service.poll();
+          std::unique_ptr< tsyn::QueueData > message;
+          while ( m_sendQueue.pop( message ) )
+          {
+            std::cout << "should send: " << message->payload << std::endl;
+            m_connectionTable.on( message->peerId,
+              [ &message ]( Connection& connection )
+              {
+                std::cout << "matching connection found" << std::endl;
+                connection.send(
+                  message->payload,
+                  message->timestamp );
+              });
+          }
+        }
       } );
 }
 

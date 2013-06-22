@@ -19,11 +19,15 @@ namespace tsyn
       Proto protocol() const;
       const std::string& ipAddress() const;
       Port port() const;
+
+      const std::string& asStr() const;
     private:
       void parse( const std::string & );
 
       Proto m_protocol;
       std::string m_ipAddress;
       Port m_port;
+
+      const std::string m_endpointStr;
   };
 }

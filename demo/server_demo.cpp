@@ -2,23 +2,14 @@
 #include <thread>
 #include <chrono>
 #include <iostream>
-
-
-std::ostream&
-operator<<( std::ostream& output, tsyn::QueueData& message )
-{
-  output << "timestamp: " << message.timestamp << std::endl;
-  output << "peer id: " << message.peerId << std::endl;
-  output << "payload: " << message.payload<< std::endl;
-  return output;
-}
-
+#include <tsyn/Types.hpp>
 
 
 int main()
 {
   tsyn::ReceiveQueue receiveQueue;
-  tsyn::Network net( receiveQueue );
+  tsyn::SendQueue sendQueue;
+  tsyn::Network net( receiveQueue, sendQueue );
   net.listenTcp( 8081 );
   net.listenTcp( 8082 );
   net.listenTcp( 8083 );
@@ -34,6 +25,7 @@ int main()
     if ( receiveQueue.pop( message ) )
     {
       std::cout << *message;
+      sendQueue.push( std::unique_ptr< tsyn::QueueData >( new tsyn::QueueData{ 0, message->peerId, std::string( "echo: " ) + message->payload } ) );
     }
   }
   net.stop();

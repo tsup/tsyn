@@ -7,6 +7,7 @@
 #include "Message.hpp"
 #include "LowLevelConnection.hpp"
 #include "RingBuffer.hpp"
+#include "Endpoint.hpp"
 
 tsyn::Connection::Connection( LowLevelConnectionRef lowLevelConn, ReceiveQueue & receiveQueue )
   : m_lowLevelConn( std::move(lowLevelConn) )
@@ -30,7 +31,7 @@ void tsyn::Connection::receive( const tsyn::Data & receivedData )
     queueData->timestamp <<= 8;
     queueData->timestamp |= ( receivedData[i] & 0xff );
   }
-  queueData->peerId = "TODO";
+  queueData->peerId = m_lowLevelConn->remoteEndpoint().asStr();
   queueData->payload = receivedData.substr( Message::HEADER_LENGTH );
 
   m_receiveQueue.push( std::move(queueData) );

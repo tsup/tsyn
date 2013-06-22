@@ -9,6 +9,7 @@ using namespace igloo;
 #include <LowLevelConnection.hpp>
 #include <Types.hpp>
 #include <RingBuffer.hpp>
+#include <Endpoint.hpp>
 
 #include <tsyn/Clock.hpp>
 
@@ -17,6 +18,11 @@ using namespace igloo;
 struct LowLevelConnectionStub : public tsyn::LowLevelConnection
 {
   typedef std::unique_ptr<LowLevelConnectionStub> Ref;
+  virtual const tsyn::Endpoint& remoteEndpoint() const
+  {
+    return endpoint;
+  }
+
   virtual void send( tsyn::Data&& data ) override
   {
     sentDatas.push_back( data );
@@ -32,6 +38,7 @@ struct LowLevelConnectionStub : public tsyn::LowLevelConnection
     return expectedOwner == ownerConnection;
   }
 
+  tsyn::Endpoint endpoint{ "tcp://129.129.129.129:9999" };
   tsyn::Connection* ownerConnection{ nullptr };
   std::vector< tsyn::Data > sentDatas;
 };
