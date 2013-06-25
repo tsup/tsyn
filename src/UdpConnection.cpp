@@ -4,7 +4,14 @@
 
 #include <iostream>
 
-tsyn::UdpConnection::UdpConnection()
+tsyn::UdpConnection::UdpConnection(
+    SocketRef& socket,
+    const Endpoint& remote )
+  : m_socket( socket )
+  , m_remoteEndpoint( remote )
+  , m_boostEndpoint(
+      boost::asio::ip::address::from_string( m_remoteEndpoint.ipAddress() ),
+      m_remoteEndpoint.port() )
 {
   std::cout << "UdpConnectioncreated!" << std::endl;
 }
@@ -25,22 +32,16 @@ tsyn::UdpConnection::receive( const Data& data )
 
 
 void
-tsyn::UdpConnection::send( Data&& )
+tsyn::UdpConnection::send( Data&& message )
 {
-}
-
-
-tsyn::UdpConnection::Ref
-tsyn::UdpConnection::connectTo( const Endpoint&, boost::asio::io_service& )
-{
-  return Ref( nullptr );
+  std::cout << "sync udp write: " << message;
+  m_socket->send_to( boost::asio::buffer( message ), m_boostEndpoint );
 }
 
 
 const tsyn::Endpoint&
 tsyn::UdpConnection::remoteEndpoint() const
 {
-  static Endpoint TODO_retrieve_endpoint( "udp://1.1.1.1:1234" );
-  return TODO_retrieve_endpoint;
+  return m_remoteEndpoint;
 }
 

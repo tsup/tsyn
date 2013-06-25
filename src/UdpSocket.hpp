@@ -21,18 +21,23 @@ namespace tsyn
                  ReceiveQueue& receiveQueue,
                  ConnectionTable& connections );
 
+      void connectTo( const Endpoint& );
     private:
+      typedef boost::asio::ip::udp::socket SocketType;
+      typedef std::shared_ptr< SocketType > SocketRef;
+
       void startReceive();
       void distribute( const boost::system::error_code & );
-      void messageArrivedTo( const boost::asio::ip::udp::endpoint & remote );
+      void messageArrivedFrom( const boost::asio::ip::udp::endpoint & remote );
+      UdpConnection& createConnection( const Endpoint& );
 
-      typedef std::map< boost::asio::ip::udp::endpoint, UdpConnection* > UdpConnectionContainer;
+      typedef std::map< std::string, UdpConnection* > UdpConnectionContainer;
 
       const static size_t BUFFER_SIZE = 1024;
       std::array< char, BUFFER_SIZE > m_buffer;
       boost::asio::ip::udp::endpoint  m_localEndpoint;
       boost::asio::ip::udp::endpoint  m_remoteEndpoint;
-      boost::asio::ip::udp::socket    m_socket;
+      SocketRef                       m_socket;
       ReceiveQueue&                   m_receiveQueue;
       UdpConnectionContainer          m_udpConnections;
       ConnectionTable&                m_connections;

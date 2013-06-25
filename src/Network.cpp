@@ -58,39 +58,42 @@ void
 tsyn::Network::listenTcp( int port )
 {
   boost::asio::ip::tcp::endpoint endpoint( boost::asio::ip::tcp::v4(), port );
-  m_acceptors.emplace_back( new TcpAcceptor( m_service, endpoint, m_receiveQueue, m_connectionTable ) );
+  m_acceptors.emplace_back(
+      new TcpAcceptor( m_service, endpoint, m_receiveQueue, m_connectionTable ) );
 }
+
+
+tsyn::UdpSocketRef&
+tsyn::Network::createUdpSocketWithPort( int port )
+{
+  boost::asio::ip::udp::endpoint localEndpoint( boost::asio::ip::udp::v4(), port );
+  m_udpSockets.emplace_back( new UdpSocket( m_service, localEndpoint, m_receiveQueue, m_connectionTable ) );
+  return m_udpSockets.back();
+}
+
 
 void
 tsyn::Network::listenUdp( int port )
 {
-  boost::asio::ip::udp::endpoint localEndpoint( boost::asio::ip::udp::v4(), port );
-  m_udpSockets.emplace_back( new UdpSocket( m_service, localEndpoint, m_receiveQueue, m_connectionTable ) );
+  createUdpSocketWithPort( port );
 }
 
-namespace
-{
-  tsyn::LowLevelConnectionRef createLowLevelConnection(
-      const tsyn::Endpoint& endpoint,
-      boost::asio::io_service& ioservice )
-  {
-    if ( tsyn::Proto::TCP == endpoint.protocol() )
-    {
-      return tsyn::TcpConnection::connectTo( endpoint, ioservice );
-    }
-
-    return tsyn::UdpConnection::connectTo( endpoint, ioservice );
-  }
-}
 
 void
 tsyn::Network::connectTo( const std::string& address )
 {
   tsyn::Endpoint endpoint( address );
-  m_connectionTable.insert(
-      address,
-      ConnectionRef( new Connection(
-          createLowLevelConnection( endpoint, m_service ),
-          m_receiveQueue ) ) );
+  if ( tsyn::Proto::TCP == endpoint.protocol() )
+  {
+    m_connectionTable.insert(
+        address,
+        ConnectionRef(
+          new Connection(
+            tsyn::TcpConnection::connectTo( endpoint, m_service ),
+            m_receiveQueue ) ) );
+    return;
+  }
+
+  createUdpSocketWithPort( 0 )->connectTo( endpoint );
 }
 

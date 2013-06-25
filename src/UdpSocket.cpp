@@ -11,7 +11,7 @@ tsyn::UdpSocket::UdpSocket(
   : m_buffer()
   , m_localEndpoint( localEndpoint )
   , m_remoteEndpoint()
-  , m_socket( service, localEndpoint )
+  , m_socket( std::make_shared< SocketType >( service, localEndpoint ) )
   , m_receiveQueue( receiveQueue )
   , m_udpConnections()
   , m_connections( connections )
@@ -24,7 +24,7 @@ void
 tsyn::UdpSocket::startReceive()
 {
   std::cout << "udp receive started\n";
-  m_socket.async_receive_from(
+  m_socket->async_receive_from(
       boost::asio::buffer(m_buffer),
       m_remoteEndpoint,
       std::bind( &UdpSocket::distribute, this, std::placeholders::_1 ) );
@@ -34,32 +34,46 @@ tsyn::UdpSocket::startReceive()
 void
 tsyn::UdpSocket::distribute( const boost::system::error_code & )
 {
-  messageArrivedTo( m_remoteEndpoint );
+  messageArrivedFrom( m_remoteEndpoint );
   startReceive();
 }
 
 
-void
-tsyn::UdpSocket::messageArrivedTo( const boost::asio::ip::udp::endpoint & remote )
+tsyn::UdpConnection&
+tsyn::UdpSocket::createConnection( const Endpoint& endpoint )
 {
-  const std::string endpoint(
-      std::string( "udp://" ) + remote.address().to_string() + ":" + std::to_string( remote.port() ) );
-  std::cout << "message arrived from: " << endpoint<< std::endl;
+  const std::string remoteId( endpoint.asStr() );
+  std::cout << "creating udp connection: " << remoteId << std::endl;
 
-  auto it = m_udpConnections.find(remote);
+  auto it = m_udpConnections.find( remoteId );
   if ( m_udpConnections.end() == it )
   {
-    UdpConnection::Ref newUdpConnection( new UdpConnection );
-    auto result = m_udpConnections.emplace( remote, newUdpConnection.get() );
+    UdpConnection::Ref newUdpConnection( new UdpConnection( m_socket, endpoint ) );
+    auto result = m_udpConnections.emplace( remoteId, newUdpConnection.get() );
 
     m_connections.insert(
-        endpoint,
+        remoteId,
         Connection::Ref( new Connection(
           LowLevelConnectionRef( std::move( newUdpConnection ) ),
           m_receiveQueue ) ) );
     it = result.first;
   }
 
-  it->second->receive( Data( begin(m_buffer), end(m_buffer) ) );
+  return *it->second;
+}
+
+
+void
+tsyn::UdpSocket::messageArrivedFrom( const boost::asio::ip::udp::endpoint & remote )
+{
+  UdpConnection& connection( createConnection( endpointFromBoost( remote ) ) );
+  connection.receive( Data( begin(m_buffer), end(m_buffer) ) );
+}
+
+
+void
+tsyn::UdpSocket::connectTo( const Endpoint& endpoint )
+{
+  createConnection( endpoint );
 }
 
