@@ -23,6 +23,8 @@ namespace tsyn
       void stop();
 
     private:
+      UdpSocketRef& createUdpSocketWithPort( int port );
+
       std::thread                     m_networkThread;
       boost::asio::io_service         m_service;
       std::vector< TcpAcceptorRef >   m_acceptors;

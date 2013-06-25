@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <boost/asio.hpp>
 
 namespace tsyn
 {
@@ -30,4 +31,38 @@ namespace tsyn
 
       const std::string m_endpointStr;
   };
+
+
+  template < class BoostType >
+  inline const char * protocolFromBoostEndpoint()
+  {
+    assert( 0 );
+  }
+
+
+  template<>
+  inline const char * protocolFromBoostEndpoint< boost::asio::ip::udp::endpoint >()
+  {
+    return "udp";
+  }
+
+
+  template<>
+  inline const char * protocolFromBoostEndpoint< boost::asio::ip::tcp::endpoint >()
+  {
+    return "tcp";
+  }
+
+
+  template< class BoostEndpoint >
+  inline const Endpoint endpointFromBoost( const BoostEndpoint& boostEndpoint )
+  {
+    std::stringstream remoteStream;
+    remoteStream
+      << protocolFromBoostEndpoint<BoostEndpoint>() << "://"
+      << boostEndpoint.address().to_string() << ":"
+      << boostEndpoint.port();
+    return Endpoint( remoteStream.str() );
+  }
+
 }

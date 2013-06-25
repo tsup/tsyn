@@ -7,16 +7,6 @@
 #include <iostream>
 #include <sstream>
 
-namespace
-{
-  const tsyn::Endpoint endpointFromBoost( const boost::asio::ip::tcp::endpoint& boostEndpoint )
-  {
-    std::stringstream remoteStream;
-    remoteStream << "tcp://" << boostEndpoint.address().to_string() << ":" << boostEndpoint.port();
-    return tsyn::Endpoint( remoteStream.str() );
-  }
-}
-
 tsyn::TcpConnection::TcpConnection( boost::asio::io_service& ioService )
   : m_socket( ioService )
   , m_buffer()
@@ -109,7 +99,7 @@ tsyn::TcpConnection::handleMessageRead( const boost::system::error_code& )
 void
 tsyn::TcpConnection::send( Data&& message )
 {
-  std::cout << "sync write: " << message;
+  std::cout << "sync tcp write: " << message;
   write( m_socket, boost::asio::buffer( message ) );
 }
 
