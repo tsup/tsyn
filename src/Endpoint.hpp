@@ -34,11 +34,7 @@ namespace tsyn
 
 
   template < class BoostType >
-  inline const char * protocolFromBoostEndpoint()
-  {
-    assert( 0 );
-  }
-
+  inline const char * protocolFromBoostEndpoint();
 
   template<>
   inline const char * protocolFromBoostEndpoint< boost::asio::ip::udp::endpoint >()
